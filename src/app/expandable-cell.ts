@@ -4,6 +4,7 @@ import {
   injectFlexRenderContext,
   type Table,
   CellContext,
+  type Row
 } from '@tanstack/angular-table'
 
 @Component({
@@ -45,7 +46,7 @@ export class ExpandableHeaderCell<T> {
         {{ ' ' }}
 
         @if (hasChildren) {
-          <button (click)="row.debugToggle()">
+          <button (click)="row.toggleExpanded()">
             {{ row.getIsExpanded() ? '👇' : '👉' }}
           </button>
         } @else {
@@ -68,11 +69,12 @@ export class ExpandableHeaderCell<T> {
 })
 export class ExpandableCell<T> {
   @Input({ required: true }) getChildren!: (row: T) => string[];
+  @Input({ required: true }) row!: Row<T>;
   readonly context = injectFlexRenderContext<CellContext<T, unknown>>()
 
-  get row() {
-    return this.context.row
-  }
+  // get row() {
+  //   return this.context.row
+  // }
 
   get hasChildren(): boolean {
     return this.getChildren(this.row.original).length > 0;

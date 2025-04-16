@@ -30,26 +30,31 @@ function makeFlatData(...lens) {
   };
 
   const buildLevel = (depth = 0, parentId) => {
-    const len = lens[depth];
+    const len = lens[depth]; // How many nodes to generate at this depth
     for (let i = 0; i < len; i++) {
-      const person = createPerson(parentId);
+      const person = createPerson(parentId); // Create the person
+
+      // If it's not a root node, assign it to its parent
       if (parentId) {
         const parent = dataMap.get(parentId);
         if (parent) {
           parent.children.push(person.id);
         }
       }
+
+      // If there are more levels, go deeper
       if (lens[depth + 1]) {
-        buildLevel(depth + 1, person.id);
+        buildLevel(depth + 1, person.id); // Recursively create child nodes
       }
     }
   };
 
-  buildLevel();
+  buildLevel(); // Start with the root level (depth = 0)
+
   return dataMap;
 }
 
 // Generate your data and write to file
-const data = Array.from(makeFlatData(2, 50).values());
+const data = Array.from(makeFlatData(5, 100, 100).values()); // Example: 2 root nodes, 50 nodes at first level, 30 nodes at second level
 writeFileSync('db.json', JSON.stringify({ persons: data }, null, 2));
-console.log('✅ db.json created with flat tree data');
+console.log('✅ db.json created with tree structure based on depth and node count');

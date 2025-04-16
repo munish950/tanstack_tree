@@ -3,7 +3,7 @@ import {
   Component,
   computed,
   signal,
-  inject
+  inject,
 } from '@angular/core'
 import {
   CellContext,
@@ -95,7 +95,6 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.personService.getRootNodes().subscribe(data => {
-      console.log('data', data);
       this.data.set(data)
     })
   }
@@ -107,37 +106,56 @@ export class AppComponent {
       expanded: this.expanded(),
     },
     onExpandedChange: updater => {
-      console.log('here');
       const expanded = typeof updater === 'function'
         ? updater(this.expanded())
-        : updater
+        : updater;
 
       this.expanded.set(expanded)
-
       // Fetch children for newly expanded rows
       Object.keys(expanded).forEach(rowId => {
         if (expanded !== true && expanded[rowId]) {
-          const row = this.data().find(p => p.id === rowId)
-          if (row && !row.subRows) {
-            this.personService.getChildren(rowId).subscribe(children => {
-              row.subRows = children
-              this.data.set([...this.data()]) // Trigger re-render
+          const person = this.table.getRow(rowId)?.original;
+          if (person && !person.subRows) {
+            this.personService.getChildren(person.id).subscribe(children => {
+              const updatedData = this.updateSubRows(this.data(), person.id, children);
+              this.data.set(updatedData); 
+              console.log(updatedData);
+              console.log('Table row model', this.table.getRowModel().rows);
             })
           }
+          
         }
       })
     },
     getSubRows: (row: Person) => row.subRows ?? [],
-    manualExpanding: true,
+  //  manualExpanding: true,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+   // getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     debugTable: true,
   }))
 
-  readonly rawExpandedState = computed(() =>
-    JSON.stringify(this.expanded(), undefined, 2)
+  updateSubRows(tree: Person[], targetId: string, children: Person[]): Person[] {
+    return tree.map(node => {
+      if (node.id === targetId) {
+        return { ...node, subRows: children };
+      }
+  
+      if (node.subRows && node.subRows.length > 0) {
+        return {
+          ...node,
+          subRows: this.updateSubRows(node.subRows, targetId, children)
+        };
+      }
+  
+      return node;
+    });
+  }
+
+  readonly rawExpandedState = computed(() => {
+    return JSON.stringify(this.expanded(), undefined, 2)
+    }
   )
 
   readonly rawRowSelectionState = computed(() =>

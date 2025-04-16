@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 export interface Person {
   id: string;
@@ -25,11 +25,13 @@ export class PersonService {
 
   // Get root nodes
   getRootNodes(): Observable<Person[]> {
-    return this.http.get<Person[]>(`${this.baseUrl}?parentId=null`);
+    return this.http.get<Person[]>(`${this.baseUrl}?parentId=root`);
   }
 
   // Get children for a given parent
   getChildren(parentId: string): Observable<Person[]> {
-    return this.http.get<Person[]>(`${this.baseUrl}?parentId=${parentId}`);
+    return this.http.get<Person[]>(`${this.baseUrl}?parentId=${parentId}`).pipe(
+      map((persons: Person[]) => persons.filter((person) => parentId !== person.id))  // Exclude the parent itself
+    );
   }
 }
