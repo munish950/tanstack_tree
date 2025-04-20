@@ -72,10 +72,6 @@ export class ExpandableCell<T> {
   @Input({ required: true }) row!: Row<T>;
   readonly context = injectFlexRenderContext<CellContext<T, unknown>>()
 
-  // get row() {
-  //   return this.context.row
-  // }
-
   get hasChildren(): boolean {
     return this.getChildren(this.row.original).length > 0;
   }
