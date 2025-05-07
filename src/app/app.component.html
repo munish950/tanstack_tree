@@ -1,10 +1,10 @@
 <div class="container">
     <div class="content">
       <cdk-virtual-scroll-viewport
-        itemSize="25"
+        [itemSize]="itemSize"
         class="viewport"
-        minBufferPx="200"
-        maxBufferPx="400"
+        [minBufferPx]="minBufferPx"
+        [maxBufferPx]="maxBufferPx"
       >
         <table>
           <thead>
@@ -25,7 +25,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *cdkVirtualFor="let row of table.getRowModel().rows; trackBy: trackByRowId">
+            <tr class="item-row" *cdkVirtualFor="let row of table.getRowModel().rows; trackBy: trackByRowId">
               <td *ngFor="let cell of row.getVisibleCells(); trackBy: trackByCellId">
                     <ng-container
                       *flexRender="

@@ -75,6 +75,9 @@ const defaultColumns: ColumnDef<Person>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
+  minBufferPx = 200;
+  maxBufferPx = 400;
+  itemSize = 25;
   readonly personService = inject(PersonService)
   readonly data = signal<Person[]>([])
   readonly expanded = signal<ExpandedState>(
